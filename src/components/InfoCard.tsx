@@ -72,7 +72,7 @@ const InfoCard = ({ altitude }: InfoCardProps) => {
           {info.description}
         </p>
         
-        <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-xl">
+        <div className="flex items-start gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
           <span className="text-sm">💡</span>
           <p className="text-xs text-muted-foreground">{info.tip}</p>
         </div>
