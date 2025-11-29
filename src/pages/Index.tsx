@@ -32,8 +32,8 @@ const Index = () => {
     return "hsl(210, 80%, 60%)";
   };
 
-  // Calculate Steve's vertical position
-  const stevePosition = 85 - (altitude / MAX_ALTITUDE) * 70;
+  // Calculate Steve's vertical position (higher altitude = higher on screen)
+  const stevePosition = 10 + (altitude / MAX_ALTITUDE) * 75;
 
   return (
     <div className="min-h-screen overflow-hidden relative">
