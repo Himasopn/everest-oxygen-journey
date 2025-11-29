@@ -139,40 +139,10 @@ const Index = () => {
         </div>
       </main>
 
-      {/* Mobile stats - bottom */}
-      <motion.div 
-        className="md:hidden fixed bottom-0 left-0 right-0 p-4 z-40"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        <div className="glass-panel rounded-2xl p-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">🫁 Oxygen</div>
-              <div 
-                className="text-xl font-bold"
-                style={{ color: getOxygenColor() }}
-              >
-                {Math.round(oxygenLevel)}%
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-muted-foreground mb-1">🌡️ Temp</div>
-              <div 
-                className="text-xl font-bold"
-                style={{ color: getTempColor() }}
-              >
-                {temperature}°C
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
 
-      {/* Info card - positioned bottom left on desktop */}
+      {/* Info card - positioned bottom left on desktop, above mobile stats on mobile */}
       <motion.div 
-        className="hidden lg:block fixed bottom-8 left-8 z-40"
+        className="fixed bottom-4 left-4 right-4 md:right-auto md:bottom-8 md:left-8 z-30"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
