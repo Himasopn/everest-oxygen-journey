@@ -39,22 +39,6 @@ const Index = () => {
     <div className="min-h-screen overflow-hidden relative">
       <SkyBackground altitude={altitude} maxAltitude={MAX_ALTITUDE} />
       
-      {/* Header */}
-      <motion.header 
-        className="fixed top-0 left-0 right-0 z-50 p-4 sm:p-6"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="glass-panel rounded-2xl px-6 py-4 max-w-2xl mx-auto">
-          <h1 className="text-xl sm:text-2xl font-bold text-center">
-            🏔️ Altitude Explorer
-          </h1>
-          <p className="text-sm text-muted-foreground text-center mt-1">
-            From Sea Level to Mt. Everest
-          </p>
-        </div>
-      </motion.header>
 
       {/* Main content */}
       <main className="relative min-h-screen flex items-center justify-center px-4 py-24">
