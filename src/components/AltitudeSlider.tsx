@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 interface AltitudeSliderProps {
   altitude: number;
@@ -8,6 +9,8 @@ interface AltitudeSliderProps {
 
 const AltitudeSlider = ({ altitude, maxAltitude, onChange }: AltitudeSliderProps) => {
   const percentage = (altitude / maxAltitude) * 100;
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const landmarks = [
     { height: 0, label: "Sea Level", emoji: "🌊" },
@@ -18,18 +21,82 @@ const AltitudeSlider = ({ altitude, maxAltitude, onChange }: AltitudeSliderProps
     { height: 8849, label: "Mt. Everest", emoji: "🏔️" },
   ];
 
+  const calculateAltitudeFromPosition = useCallback((clientY: number) => {
+    if (!trackRef.current) return;
+    
+    const rect = trackRef.current.getBoundingClientRect();
+    const relativeY = clientY - rect.top;
+    const trackHeight = rect.height;
+    
+    // Invert: top of track = max altitude, bottom = 0
+    const percentage = 1 - Math.max(0, Math.min(1, relativeY / trackHeight));
+    const newAltitude = Math.round(percentage * maxAltitude);
+    
+    onChange(newAltitude);
+  }, [maxAltitude, onChange]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    calculateAltitudeFromPosition(e.clientY);
+  }, [calculateAltitudeFromPosition]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setIsDragging(true);
+    calculateAltitudeFromPosition(e.touches[0].clientY);
+  }, [calculateAltitudeFromPosition]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    calculateAltitudeFromPosition(e.touches[0].clientY);
+  }, [isDragging, calculateAltitudeFromPosition]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Global mouse listeners for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      calculateAltitudeFromPosition(e.clientY);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, calculateAltitudeFromPosition]);
+
   return (
-    <div className="glass-panel rounded-2xl p-4 w-20 h-[70vh] flex flex-col items-center">
+    <div className="glass-panel rounded-2xl p-4 w-20 h-[70vh] flex flex-col items-center select-none">
       <span className="text-xs font-medium text-muted-foreground mb-2">Altitude</span>
       
-      <div className="flex-1 relative w-full flex justify-center">
+      <div 
+        ref={trackRef}
+        className="flex-1 relative w-full flex justify-center cursor-pointer touch-none"
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Track background */}
-        <div className="w-2 h-full bg-muted rounded-full relative overflow-hidden">
+        <div className="w-3 h-full bg-white/10 rounded-full relative overflow-hidden border border-white/20">
           {/* Filled portion */}
           <motion.div
             className="absolute bottom-0 w-full rounded-full"
             style={{
-              background: "linear-gradient(to top, hsl(200, 80%, 70%), hsl(210, 90%, 80%), hsl(220, 60%, 95%))",
+              background: "linear-gradient(to top, hsl(200, 80%, 50%), hsl(210, 90%, 60%), hsl(220, 60%, 70%))",
             }}
             animate={{ height: `${percentage}%` }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -37,7 +104,7 @@ const AltitudeSlider = ({ altitude, maxAltitude, onChange }: AltitudeSliderProps
         </div>
 
         {/* Landmarks */}
-        <div className="absolute left-8 top-0 h-full w-16">
+        <div className="absolute left-10 top-0 h-full w-16">
           {landmarks.map((landmark) => {
             const pos = 100 - (landmark.height / maxAltitude) * 100;
             return (
@@ -45,10 +112,10 @@ const AltitudeSlider = ({ altitude, maxAltitude, onChange }: AltitudeSliderProps
                 key={landmark.height}
                 className="absolute text-xs flex items-center gap-1 whitespace-nowrap"
                 style={{ top: `${pos}%`, transform: "translateY(-50%)" }}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0.4 }}
                 animate={{ 
                   opacity: Math.abs(altitude - landmark.height) < 1000 ? 1 : 0.4,
-                  x: 0 
+                  scale: Math.abs(altitude - landmark.height) < 500 ? 1.1 : 1,
                 }}
                 transition={{ duration: 0.3 }}
               >
@@ -58,34 +125,24 @@ const AltitudeSlider = ({ altitude, maxAltitude, onChange }: AltitudeSliderProps
           })}
         </div>
 
-        {/* Invisible slider input */}
-        <input
-          type="range"
-          min={0}
-          max={maxAltitude}
-          value={altitude}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="absolute w-full h-full opacity-0 cursor-pointer"
-          style={{
-            writingMode: "vertical-lr",
-            direction: "rtl",
-          }}
-        />
-
         {/* Thumb indicator */}
         <motion.div
-          className="absolute left-1/2 -translate-x-1/2 w-5 h-5 bg-primary rounded-full shadow-lg border-2 border-white cursor-grab active:cursor-grabbing"
-          style={{ bottom: `${percentage}%` }}
-          animate={{ bottom: `${percentage}%` }}
+          className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-primary rounded-full shadow-lg border-2 border-white ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          style={{ 
+            boxShadow: '0 0 20px rgba(0, 150, 255, 0.5)',
+          }}
+          animate={{ 
+            bottom: `${percentage}%`,
+            scale: isDragging ? 1.2 : 1,
+          }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.15 }}
         />
       </div>
 
-      <div className="mt-2 text-center">
+      <div className="mt-3 text-center">
         <motion.span 
-          className="text-lg font-semibold"
+          className="text-lg font-bold text-foreground"
           key={Math.floor(altitude / 100)}
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
