@@ -8,27 +8,28 @@ interface SkyBackgroundProps {
 const SkyBackground = ({ altitude, maxAltitude }: SkyBackgroundProps) => {
   const progress = altitude / maxAltitude;
   
-  // Calculate colors based on altitude
+  // Calculate colors based on altitude - dark theme
   const getSkyGradient = () => {
     if (progress < 0.3) {
-      // Low altitude - nice blue sky
-      return "linear-gradient(180deg, #87CEEB 0%, #B0E0E6 50%, #98D8C8 100%)";
+      // Low altitude - dark night sky
+      return "linear-gradient(180deg, #0a0a0f 0%, #151520 50%, #1a1a25 100%)";
     } else if (progress < 0.6) {
-      // Mid altitude - lighter sky
-      return "linear-gradient(180deg, #B0C4DE 0%, #E0E8F0 50%, #F5F5F5 100%)";
+      // Mid altitude - slightly lighter dark
+      return "linear-gradient(180deg, #0f0f18 0%, #1a1a28 50%, #202030 100%)";
     } else {
-      // High altitude - pale/white sky
-      return "linear-gradient(180deg, #E8EEF4 0%, #F0F4F8 50%, #FFFFFF 100%)";
+      // High altitude - deep space dark
+      return "linear-gradient(180deg, #050508 0%, #0a0a10 50%, #101018 100%)";
     }
   };
 
-  // Cloud positions
-  const clouds = [
-    { id: 1, top: 15, delay: 0, scale: 1 },
-    { id: 2, top: 25, delay: 5, scale: 0.8 },
-    { id: 3, top: 40, delay: 10, scale: 1.2 },
-    { id: 4, top: 55, delay: 15, scale: 0.7 },
-  ];
+  // Stars for dark theme
+  const stars = [...Array(50)].map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    top: Math.random() * 70,
+    size: Math.random() * 2 + 1,
+    delay: Math.random() * 3,
+  }));
 
   return (
     <motion.div
@@ -36,58 +37,43 @@ const SkyBackground = ({ altitude, maxAltitude }: SkyBackgroundProps) => {
       animate={{ background: getSkyGradient() }}
       transition={{ duration: 1.5, ease: "easeInOut" }}
     >
-      {/* Sun */}
+      {/* Stars */}
+      {stars.map((star) => (
+        <motion.div
+          key={star.id}
+          className="absolute rounded-full bg-white"
+          style={{
+            left: `${star.left}%`,
+            top: `${star.top}%`,
+            width: star.size,
+            height: star.size,
+          }}
+          animate={{
+            opacity: [0.3, 0.8, 0.3],
+          }}
+          transition={{
+            duration: 2 + Math.random() * 2,
+            repeat: Infinity,
+            delay: star.delay,
+          }}
+        />
+      ))}
+
+      {/* Moon */}
       <motion.div
-        className="absolute w-32 h-32 rounded-full"
+        className="absolute w-24 h-24 rounded-full"
         style={{
-          background: "radial-gradient(circle, #FFF9C4 0%, #FFEE58 40%, transparent 70%)",
-          top: "10%",
-          right: "15%",
+          background: "radial-gradient(circle, #f5f5f5 0%, #e0e0e0 60%, transparent 70%)",
+          top: "8%",
+          right: "12%",
+          boxShadow: "0 0 60px rgba(255,255,255,0.3)",
         }}
         animate={{
-          opacity: progress > 0.7 ? 0.3 : 0.8,
+          opacity: progress > 0.7 ? 0.5 : 0.9,
           scale: progress > 0.7 ? 0.8 : 1,
         }}
         transition={{ duration: 1 }}
       />
-
-      {/* Clouds - only visible at certain altitudes */}
-      {clouds.map((cloud) => (
-        <motion.div
-          key={cloud.id}
-          className="absolute"
-          style={{
-            top: `${cloud.top}%`,
-            animationDelay: `${cloud.delay}s`,
-          }}
-          animate={{
-            opacity: progress > 0.2 && progress < 0.8 ? 0.7 : 0.2,
-            x: ["calc(-100%)", "calc(100vw)"],
-          }}
-          transition={{
-            x: {
-              duration: 40 / cloud.scale,
-              repeat: Infinity,
-              ease: "linear",
-              delay: cloud.delay,
-            },
-            opacity: { duration: 1 },
-          }}
-        >
-          <svg
-            width={120 * cloud.scale}
-            height={60 * cloud.scale}
-            viewBox="0 0 120 60"
-            fill="white"
-          >
-            <ellipse cx="60" cy="40" rx="50" ry="20" opacity="0.9" />
-            <ellipse cx="35" cy="35" rx="25" ry="18" opacity="0.9" />
-            <ellipse cx="85" cy="35" rx="25" ry="18" opacity="0.9" />
-            <ellipse cx="50" cy="25" rx="20" ry="15" opacity="0.9" />
-            <ellipse cx="70" cy="25" rx="20" ry="15" opacity="0.9" />
-          </svg>
-        </motion.div>
-      ))}
 
       {/* Mountain silhouette at bottom */}
       <div className="absolute bottom-0 left-0 right-0">
@@ -102,14 +88,14 @@ const SkyBackground = ({ altitude, maxAltitude }: SkyBackgroundProps) => {
               <motion.stop
                 offset="0%"
                 animate={{
-                  stopColor: progress > 0.5 ? "#FFFFFF" : "#6B7B8C",
+                  stopColor: progress > 0.5 ? "#2a2a35" : "#1a1a22",
                 }}
                 transition={{ duration: 1 }}
               />
               <motion.stop
                 offset="100%"
                 animate={{
-                  stopColor: progress > 0.5 ? "#E8EEF4" : "#4A5568",
+                  stopColor: progress > 0.5 ? "#1a1a22" : "#0f0f15",
                 }}
                 transition={{ duration: 1 }}
               />
@@ -130,9 +116,9 @@ const SkyBackground = ({ altitude, maxAltitude }: SkyBackgroundProps) => {
           {/* Snow caps when high */}
           <motion.path
             d="M500,60 L520,75 L480,75 Z M800,40 L825,60 L775,60 Z M1100,30 L1130,55 L1070,55 Z"
-            fill="white"
+            fill="#ffffff"
             animate={{
-              opacity: progress > 0.4 ? 1 : 0,
+              opacity: progress > 0.4 ? 0.8 : 0,
               y: -progress * 100,
             }}
             transition={{ duration: 0.5 }}
@@ -146,7 +132,7 @@ const SkyBackground = ({ altitude, maxAltitude }: SkyBackgroundProps) => {
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-white rounded-full"
+              className="absolute w-1 h-1 bg-white/70 rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: "-5%",
