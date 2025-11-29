@@ -57,6 +57,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        sky: {
+          low: "hsl(var(--sky-low))",
+          mid: "hsl(var(--sky-mid))",
+          high: "hsl(var(--sky-high))",
+        },
+        snow: "hsl(var(--snow))",
+        oxygen: {
+          high: "hsl(var(--oxygen-high))",
+          low: "hsl(var(--oxygen-low))",
+        },
+        temp: {
+          warm: "hsl(var(--temp-warm))",
+          cold: "hsl(var(--temp-cold))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +79,35 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        "breathe": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.02)" },
+        },
+        "cloud-drift": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100vw)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "breathe": "breathe 4s ease-in-out infinite",
+        "cloud-drift": "cloud-drift 30s linear infinite",
+      },
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
     },
   },
